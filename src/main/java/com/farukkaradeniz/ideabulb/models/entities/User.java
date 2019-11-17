@@ -58,6 +58,10 @@ public class User {
     )
     private String roles; // Will contain a value like: USER,ADMIN or ADMIN or USER,ADMIN,ROBOT
 
+    @Column(name = "ACTIVE",
+            nullable = false)
+    private boolean isActive = true;
+
     public User() {}
 
     public User(String username, String password, String email,
@@ -143,5 +147,13 @@ public class User {
 
     public void setRoles(String roles) {
         this.roles = roles;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }
