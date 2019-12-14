@@ -1,7 +1,9 @@
 package com.farukkaradeniz.ideabulb.services.impl;
 
+import com.farukkaradeniz.ideabulb.models.dtos.PostDTO;
 import com.farukkaradeniz.ideabulb.models.entities.Post;
 import com.farukkaradeniz.ideabulb.models.entities.User;
+import com.farukkaradeniz.ideabulb.models.mappers.PostMapper;
 import com.farukkaradeniz.ideabulb.repositories.CommentRepository;
 import com.farukkaradeniz.ideabulb.repositories.PostRepository;
 import com.farukkaradeniz.ideabulb.repositories.UserRepository;
@@ -9,13 +11,14 @@ import com.farukkaradeniz.ideabulb.services.PostService;
 import com.farukkaradeniz.ideabulb.utils.generators.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -32,14 +35,20 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
-     * Returns list of posts by given user's id
-     * @param userId user id
-     * @param pageable paging
-     * @return  list of posts
+     * Returns post with given user id
+     * @param userId user's id
+     * @param page page number
+     * @param pageSize number of posts in one page
+     * @return list of posts
      */
     @Override
-    public Page<Post> getPostsByUserId(String userId, Pageable pageable) {
-        return postRepository.findAllByUserId(userId, pageable);
+    public List<PostDTO> getPostsByUserId(String userId, Integer page, Integer pageSize) {
+        PageRequest request = PageRequest.of(page, pageSize);
+        return postRepository
+                .findAllByUserId(userId, request)
+                .stream()
+                .map(PostMapper::convertToPostDTO)
+                .collect(Collectors.toList());
     }
 
     /**

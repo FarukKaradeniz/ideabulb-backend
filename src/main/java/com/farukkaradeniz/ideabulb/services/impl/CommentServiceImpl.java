@@ -1,8 +1,10 @@
 package com.farukkaradeniz.ideabulb.services.impl;
 
+import com.farukkaradeniz.ideabulb.models.dtos.CommentDTO;
 import com.farukkaradeniz.ideabulb.models.entities.Comment;
 import com.farukkaradeniz.ideabulb.models.entities.Post;
 import com.farukkaradeniz.ideabulb.models.entities.User;
+import com.farukkaradeniz.ideabulb.models.mappers.CommentMapper;
 import com.farukkaradeniz.ideabulb.repositories.CommentRepository;
 import com.farukkaradeniz.ideabulb.repositories.PostRepository;
 import com.farukkaradeniz.ideabulb.repositories.UserRepository;
@@ -10,12 +12,13 @@ import com.farukkaradeniz.ideabulb.services.CommentService;
 import com.farukkaradeniz.ideabulb.utils.generators.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -33,25 +36,39 @@ public class CommentServiceImpl implements CommentService {
     }
 
     /**
-     * Returns list of comments made by user
+     * Returns list of comments by given user id
      * @param userId user's id
-     * @param pageable paging
+     * @param page page
+     * @param pageSize page size
      * @return list of comments
      */
     @Override
-    public Page<Comment> getCommentsByUserId(String userId, Pageable pageable) {
-        return commentRepository.findAllByUserId(userId, pageable);
+    public List<CommentDTO> getCommentsByUserId(String userId, Integer page, Integer pageSize) {
+        PageRequest request = PageRequest.of(page, pageSize);
+
+        return commentRepository
+                .findAllByUserId(userId, request)
+                .stream()
+                .map(CommentMapper::convertToCommentDTO)
+                .collect(Collectors.toList());
     }
 
     /**
-     * Returns list of comments made to the post
+     * Returns list of comments by given post id
      * @param postId post's id
-     * @param pageable paging
+     * @param page page
+     * @param pageSize page size
      * @return list of comments
      */
     @Override
-    public Page<Comment> getCommentsByPostId(String postId, Pageable pageable) {
-        return commentRepository.findAllByPostId(postId, pageable);
+    public List<CommentDTO> getCommentsByPostId(String postId, Integer page, Integer pageSize) {
+        PageRequest request = PageRequest.of(page, pageSize);
+
+        return commentRepository
+                .findAllByPostId(postId, request)
+                .stream()
+                .map(CommentMapper::convertToCommentDTO)
+                .collect(Collectors.toList());
     }
 
     /**

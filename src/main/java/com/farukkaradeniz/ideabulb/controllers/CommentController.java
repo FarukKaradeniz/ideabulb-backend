@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -60,8 +62,25 @@ public class CommentController extends BaseController {
                 new ResponseEntity<>("success", HttpStatus.OK);
     }
 
-    // TODO create method for returning list of comments with paging by userId
+    @GetMapping
+    public ResponseEntity<List<CommentDTO>> getCommentsById(
+            @RequestBody Map<String, Object> fields
+    ) {
+        List<CommentDTO> comments = Collections.emptyList();
 
-    // TODO create method for returning list of comments with paging by postId
+        if(!fields.containsKey("userId") && !fields.containsKey("postId")) {
+            return new ResponseEntity<>(comments, HttpStatus.NOT_FOUND);
+        }
+
+        Integer page = fields.containsKey("page") ? (Integer) fields.get("page") : 0;
+        Integer pageSize = fields.containsKey("pageSize") ? (Integer) fields.get("pageSize") : 10;
+
+        if(fields.containsKey("userId"))
+            comments = commentService.getCommentsByUserId(fields.get("userId").toString(), page, pageSize);
+        else
+            comments = commentService.getCommentsByPostId(fields.get("postId").toString(), page, pageSize);
+
+        return new ResponseEntity<>(comments, HttpStatus.OK);
+    }
 
 }

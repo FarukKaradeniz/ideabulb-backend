@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -73,5 +75,24 @@ public class PostController extends BaseController {
                 new ResponseEntity<>("success", HttpStatus.OK);
     }
 
-    // TODO create method for returning list of posts with paging
+    @GetMapping
+    public ResponseEntity<List<PostDTO>> getPostsByUserId(
+            @RequestBody Map<String, Object> fields
+    ) {
+        if(!fields.containsKey("userId")) {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
+        }
+        Integer page = fields.containsKey("page") ? (Integer) fields.get("page") : 0;
+        Integer pageSize = fields.containsKey("pageSize") ? (Integer) fields.get("pageSize") : 10;
+
+
+
+        List<PostDTO> posts = postService.getPostsByUserId(
+                fields.get("userId").toString(),
+                page,
+                pageSize);
+
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
 }
